@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Preparedness Education System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <!-- Sign Up Screen -->
+    <div id="signupScreen" class="screen hidden">
+        <div class="signup-container">
+            <div class="signup-header">
+                <div class="signup-icon">🛡️</div>
+                <h1 data-i18n="signup">Sign Up</h1>
+                <p class="signup-subtitle" data-i18n="signupSubtitle">Join our Disaster Preparedness Community</p>
+            </div>
+            <div class="signup-form">
+                <div class="input-group">
+                    <label for="newUsername" data-i18n="chooseUsername">Choose Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="newUsername" placeholder="Choose Username" data-i18n-placeholder="chooseUsername">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword" data-i18n="choosePassword">Choose Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="newPassword" placeholder="Choose Password" data-i18n-placeholder="choosePassword">
+                    </div>
+                </div>
+                <button onclick="signup()" class="signup-btn" data-i18n="signup">Create Account</button>
+                <p class="login-link" data-i18n="alreadyAccount">Already have an account? <a href="#" onclick="showLogin()" data-i18n="login">Sign In</a></p>
+            </div>
+            <div class="signup-footer">
+                <div class="safety-badge">
+                    <span class="badge-icon">🌟</span>
+                    <span class="badge-text" data-i18n="safetyBadge">Join for Safety Learning</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+        <h1 data-i18n="login">Disaster Prep Login</h1>
+        <input type="text" id="username" placeholder="Username (e.g., student)" data-i18n-placeholder="usernamePlaceholder">
+        <input type="password" id="password" placeholder="Password" data-i18n-placeholder="passwordPlaceholder">
+        <button onclick="login()" data-i18n="login">Login</button>
+        <p data-i18n="noAccount">Don't have an account? <a href="#" onclick="showSignup()" data-i18n="signup">Sign Up</a></p>
+        <p>Demo: student / pass123</p>
+        <div id="errorMessage" class="error-message hidden">
+            <span class="error-icon">&#9888;</span>
+            <span id="errorText">Sorry, please enter valid credentials!</span>
+        </div>
+    </div>
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="screen hidden">
+        <nav>
+            <button onclick="showSection('home')" data-i18n="home">Home</button>
+            <button onclick="showSection('emergency')" data-i18n="emergency">Emergency Contacts</button>
+            <button onclick="showSection('quizzes')" data-i18n="quizzes">Quizzes</button>
+            <button onclick="showSection('games')" data-i18n="games">Games (Class Level)</button>
+            <button onclick="showSection('hackathon')" data-i18n="hackathon">Hackathon Mode (6-10)</button>
+            <button onclick="showSection('advanced')" data-i18n="advanced">Advanced Simulation (11-12)</button>
+            <button onclick="showSection('videos')" data-i18n="videos">YouTube Videos</button>
+            <button onclick="logout()" data-i18n="logout">Logout</button>
+            <button onclick="toggleVoice()" data-i18n="voice">Voice Guide</button>
+        </nav>
+
+        <!-- Language Selection -->
+        <div id="languageSelectContainer">
+            <label for="languageSelect">Select Language:</label>
+            <select id="languageSelect" onchange="setLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="es">Español</option>
+                <option value="te">తెలుగు</option>
+            </select>
+        </div>
+
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <div class="home-hero">
+                <div class="home-hero-bg"></div>
+                <div class="home-hero-content">
+                    <h2><span class="emoji">🛡️</span> <span data-i18n="welcome">Welcome to Disaster Prep Portal</span> <span class="emoji">🌍</span></h2>
+                    <p>
+                        <span class="highlight">🌏 <span data-i18n="region">Region:</span></span>
+                        <b data-i18n="vizag">vizag</b>
+                        <span class="badge-disaster" data-i18n="zone">Flood & Earthquake Zone</span>
+                        <br>
+                        <span class="home-motivate">
+                            <span class="emoji">🚨</span>
+                            <b data-i18n="hero">Are you ready to become a Disaster Hero?</b>
+                            <span class="emoji">🦸‍♂️🦸‍♀️</span>
+                            <br>
+                            <span style="color:#36d1c4;font-weight:600;" data-i18n="learn">Learn, Play, and Prepare to Stay Safe!</span>
+                        </span>
+                    </p>
+                    <div class="home-actions">
+                        <button onclick="showSection('quizzes')" class="home-btn"><span data-i18n="takeQuiz">📝 Take a Quiz</span></button>
+                        <button onclick="showSection('games')" class="home-btn"><span data-i18n="playGame">🎮 Play a Game</span></button>
+                        <button onclick="showSection('advanced')" class="home-btn"><span data-i18n="trySimulation">🗺️ Try Simulation</span></button>
+                    </div>
+                </div>
+            </div>
+            <div id="progressBar">
+                <span data-i18n="progress">Progress:</span> <span id="progress">0%</span>
+                <div id="progressFill"></div>
+            </div>
+            <div id="classProgress" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                <!-- per-class progress boxes inserted by script -->
+            </div>
+            <div id="badges"><span data-i18n="badges">Badges:</span> <span id="badgeList"></span></div>
+            <div class="home-news" id="homeNews"><span data-i18n="leaderboard">Leaderboard</span></div>
+        </section>
+
+        <!-- Emergency Contacts -->
+        <section id="emergency" class="section hidden">
+            <h2 data-i18n="emergency">Emergency Contacts (Vizag)</h2>
+            <ul>
+                <li data-i18n="ndmaHelpline">NDMA Helpline: 011-26701700</li>
+                <li data-i18n="vizagContact">Vizag Disaster Mgmt: 0891-2568499</li>
+                <li data-i18n="firePoliceMedical">Fire: 101 | Police: 100 | Medical: 108</li>
+                <li data-i18n="schoolCoordinator">Local School Drill Coordinator: Contact Admin</li>
+            </ul>
+            <button onclick="shareContacts()" data-i18n="shareParents">Share with Parents</button>
+        </section>
+
+        <!-- Quizzes -->
+        <section id="quizzes" class="section hidden">
+            <h2 data-i18n="quizzes">Disaster Quizzes</h2>
+            <div id="quizContent"></div>
+        </section>
+
+        <!-- Games for Classes 1-5 -->
+        <section id="games" class="section hidden">
+            <h2 data-i18n="games">Games for Classes 1-5</h2>
+            
+            <!-- Regular Game -->
+            <div class="game-section">
+                <h3 data-i18n="regularGame">Regular Quiz Game</h3>
+                <div class="game-controls">
+                    <select id="classLevel">
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                    </select>
+                    <button onclick="startGame()" class="game-btn">
+                        <span data-i18n="startGame">Start Game</span>
+                    </button>
+                </div>
+                <div id="gameArea" class="game-play-area"></div>
+                <div class="game-status">
+                    <div id="gameScore">Score: 0</div>
+                    <div id="levelProgress">Level: 1/5</div>
+                </div>
+            </div>
+
+            <!-- Drag and Drop Game -->
+            <div class="game-section">
+                <h3 data-i18n="dragGameTitle">Drag and Drop Safety Game</h3>
+                <p class="game-instructions" data-i18n="dragInstructions">Drag the correct item to answer each question!</p>
+                <div class="game-controls">
+                    <select id="dragClassLevel">
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                    </select>
+                    <button onclick="startDragGame()" class="game-btn">
+                        <span data-i18n="startDragGame">Start Drag Game</span>
+                    </button>
+                </div>
+                <div id="dragArea" class="drag-play-area"></div>
+                <div id="dragScore" class="game-status"><span data-i18n="score">Score</span>: <span id="dragScoreValue">0</span></div>
+            </div>
+        </section>
+
+        <!-- Hackathon Mode Game (Classes 6-10) -->
+        <section id="hackathon" class="section hidden">
+            <h2 data-i18n="hackathon">Hackathon Mode Game (Classes 6-10)</h2>
+            <p>
+                <span data-i18n="hackathonWelcome">Welcome to Hackathon Mode! Solve disaster scenarios by making quick decisions.</span><br>
+                <b data-i18n="selectClass">Select your class:</b>
+                <select id="hackathonClass">
+                    <option value="6" data-i18n="class6">Class 6</option>
+                    <option value="7" data-i18n="class7">Class 7</option>
+                    <option value="8" data-i18n="class8">Class 8</option>
+                    <option value="9" data-i18n="class9">Class 9</option>
+                    <option value="10" data-i18n="class10">Class 10</option>
+                </select>
+                <button onclick="startHackathonGame()" data-i18n="startHackathon">Start Hackathon Game</button>
+            </p>
+            <div id="hackathonGameArea"></div>
+            <div id="hackathonScore" data-i18n="score">Score: 0</div>
+        </section>
+
+        <!-- Advanced Simulation for 11-12 -->
+        <section id="advanced" class="section hidden">
+            <div class="sim-card">
+                <div class="sim-icon">🌊</div>
+                <h2 data-i18n="advanced">Real-Time Location-Based Simulation</h2>
+                <p id="simQuestion"></p>
+                <button class="sim-btn" onclick="startAdvancedSimulation()" data-i18n="startSimulation">🚦 Start Simulation</button>
+                <div id="simFeedback" class="sim-feedback"></div>
+                <div id="realMap" class="sim-map"></div>
+                <div id="safePlaces" class="sim-safe"></div>
+            </div>
+        </section>
+
+        <!-- YouTube Learning Videos Section -->
+        <section id="videos" class="section hidden">
+            <h2 data-i18n="videos">Disaster Safety: Watch & Learn</h2>
+            <div class="video-grid" id="videoGrid"></div>
+            <div id="videoPlayer" class="video-player"></div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+    <!-- Remove embedded translations as they are now in script.js -->
+</body>
+</html>
